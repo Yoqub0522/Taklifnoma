@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Muhammad & Diyora - Nikoh Toʻyi{% endblock %}</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% block content %}{% endblock %}
+
+    <!-- Music Player -->
+    <div class="music-player" id="musicPlayer">
+        <div class="music-controls">
+<!--            <button class="music-btn" onclick="previousSong()">-->
+<!--                <i class="fas fa-step-backward"></i>-->
+<!--            </button>-->
+            <button class="music-btn" onclick="togglePlay()">
+                <i class="fas fa-play" id="playIcon"></i>
+            </button>
+<!--            <button class="music-btn" onclick="nextSong()">-->
+<!--                <i class="fas fa-step-forward"></i>-->
+<!--            </button>-->
+        </div>
+
+<!--        <select id="songSelector" onchange="changeSong(this.value)">-->
+<!--            <option value="">Qo'shiq tanlang...</option>-->
+<!--            {% for song in songs %}-->
+<!--            <option value="{{ song.audio_file.url }}">{{ song.title }} - {{ song.artist }}</option>-->
+<!--            {% endfor %}-->
+<!--        </select>-->
+    </div>
+
+    <audio id="backgroundMusic" loop>
+        <source src="" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Music Player Functions
+        const audioPlayer = document.getElementById('backgroundMusic');
+        const playIcon = document.getElementById('playIcon');
+        const currentSongTitle = document.getElementById('currentSongTitle');
+        const currentSongArtist = document.getElementById('currentSongArtist');
+        const songSelector = document.getElementById('songSelector');
+
+        const songs = [
+            {% for song in songs %}
+            {
+                url: "{{ song.audio_file.url }}",
+                title: "{{ song.title }}",
+                artist: "{{ song.artist }}"
+            },
+            {% endfor %}
+        ];
+
+        let currentSongIndex = 0;
+
+        function togglePlay() {
+            if (audioPlayer.paused) {
+                if (!audioPlayer.src && songs.length > 0) {
+                    changeSong(songs[0].url);
+                }
+                audioPlayer.play();
+                playIcon.className = 'fas fa-pause';
+            } else {
+                audioPlayer.pause();
+                playIcon.className = 'fas fa-play';
+            }
+        }
+
+        function changeSong(url) {
+            if (!url) return;
+
+            const song = songs.find(s => s.url === url);
+            if (song) {
+                audioPlayer.src = song.url;
+                currentSongTitle.textContent = song.title;
+                currentSongArtist.textContent = song.artist;
+                audioPlayer.play();
+                playIcon.className = 'fas fa-pause';
+
+                songSelector.value = url;
+                currentSongIndex = songs.indexOf(song);
+            }
+        }
+
+        function nextSong() {
+            if (songs.length === 0) return;
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            changeSong(songs[currentSongIndex].url);
+        }
+
+        function previousSong() {
+            if (songs.length === 0) return;
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            changeSong(songs[currentSongIndex].url);
+        }
+
+        // Auto-play first song when page loads
+        window.addEventListener('load', function() {
+            if (songs.length > 0) {
+                changeSong(songs[0].url);
+            }
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

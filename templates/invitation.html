@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- HERO SECTION -->
+<div class="hero">
+    <div class="floating-hearts" id="heartsContainer"></div>
+    <div class="hero-content">
+        <h1 class="couple-names">Muhammad & Diyora</h1>
+        <p>Sizni muhtaram farzandlarimizning nikoh toʻyi munosabati bilan o'tkaziladigan tantanaga taklif etamiz.</p>
+        <a class="btn-primary" href="#info">
+            <span>Batafsil maʼlumot</span>
+            <i class="fas fa-chevron-down"></i>
+        </a>
+    </div>
+</div>
+
+<!-- INFO SECTION -->
+<div class="section" id="info">
+    <h2>Toʻy Tafsilotlari</h2>
+    <div class="card fade-in">
+        <div><i class="fas fa-calendar-alt"></i> <strong>Sana:</strong> 30 Noyabr 2025</div>
+        <div><i class="fas fa-clock"></i> <strong>Vaqt:</strong> 18:00</div>
+        <div><i class="fas fa-map-marker-alt"></i> <strong>Manzil:</strong> Buxoro viloyat Qorovulbozor tuman "Farhod" toyxonasida</div>
+
+        <a class="btn-primary" style="margin-top:20px; display:inline-flex;" href="https://www.google.com/maps/search/?api=1&query=Farxod+cafe+Qorovulbozor+Buxoro Viloyati+Узбекистан" target="_blank">
+            <i class="fas fa-map"></i>
+            <span>Manzilni ochish</span>
+        </a>
+
+        <div class="countdown">
+            <div class="countdown-item">
+                <div class="countdown-value" id="days">0</div>
+                <div class="countdown-label">Kun</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-value" id="hours">0</div>
+                <div class="countdown-label">Soat</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-value" id="minutes">0</div>
+                <div class="countdown-label">Daqiqa</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-value" id="seconds">0</div>
+                <div class="countdown-label">Soniva</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- RSVP SECTION -->
+<div class="rsvp-section fade-in">
+    <div class="rsvp-container">
+        <h2>Ishtirok Etasizmi?</h2>
+        <p>Iltimos, 29 Noyabrgacha javob qaytaring</p>
+
+        <form class="rsvp-form" id="rsvpForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Ism Familiya *</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Telefon raqam</label>
+                <input type="tel" id="phone" name="phone">
+            </div>
+
+            <div class="form-group">
+                <label for="guests">Mehmonlar soni *</label>
+                <select id="guests" name="guests" required>
+                    <option value="" disabled selected>Tanlang</option>
+                    <option value="1">1 kishi</option>
+                    <option value="2">2 kishi</option>
+                    <option value="3">3 kishi</option>
+                    <option value="4">4 kishi</option>
+                    <option value="5">5+ kishi</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="attendance">Ishtirok etasizmi? *</label>
+                <select id="attendance" name="attendance" required>
+                    <option value="" disabled selected>Tanlang</option>
+                    <option value="yes">Ha, albatta kelaman</option>
+                    <option value="no">Afsuski, kelolmayman</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Xabar (ixtiyoriy)</label>
+                <textarea id="message" name="message" rows="3" placeholder="Tabriklar yoki qo'shimcha ma'lumot..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-secondary">Tasdiqlash</button>
+        </form>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <p>Muhammad & Diyoraning nikoh toʻyi</p>
+    <p>30.11.2025 | Farhod Toʻyxonasi, Qoravulbozor</p>
+
+    <div class="social-icons">
+<!--        <a href="#"><i class="fab fa-instagram"></i></a>-->
+        <a href="https://t.me/Yoqub_Akhmedov"><i class="fab fa-telegram"></i><h6>bo'glanish uchun telegram</h6></a>
+<!--        <a href="#"><i class="fab fa-facebook"></i></a>-->
+    </div>
+</div>
+
+<script>
+    // Countdown Timer
+    const eventDate = new Date("2025-11-30T18:00:00");
+
+    function updateCountdown() {
+        const now = new Date();
+        const diff = eventDate - now;
+
+        if (diff <= 0) {
+            document.getElementById("days").innerText = "0";
+            document.getElementById("hours").innerText = "0";
+            document.getElementById("minutes").innerText = "0";
+            document.getElementById("seconds").innerText = "0";
+            clearInterval(interval);
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        document.getElementById("days").innerText = days;
+        document.getElementById("hours").innerText = hours;
+        document.getElementById("minutes").innerText = minutes;
+        document.getElementById("seconds").innerText = seconds;
+    }
+
+    const interval = setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Floating Hearts
+    function createHearts() {
+        const container = document.getElementById('heartsContainer');
+        const heartCount = 15;
+
+        for (let i = 0; i < heartCount; i++) {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '<i class="fas fa-heart"></i>';
+
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.top = Math.random() * 100 + 'vh';
+            heart.style.animationDelay = Math.random() * 5 + 's';
+
+            container.appendChild(heart);
+        }
+    }
+
+    createHearts();
+
+    // Fade in on scroll
+    function checkFade() {
+        const fadeElements = document.querySelectorAll('.fade-in');
+
+        fadeElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const elementVisible = 150;
+
+            if (elementTop < window.innerHeight - elementVisible) {
+                element.classList.add('visible');
+            }
+        });
+    }
+
+    window.addEventListener('scroll', checkFade);
+    window.addEventListener('load', checkFade);
+
+    // RSVP Form Submission
+    document.getElementById('rsvpForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = {
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            guests: document.getElementById('guests').value,
+            attendance: document.getElementById('attendance').value,
+            message: document.getElementById('message').value,
+        };
+
+        try {
+            const response = await fetch('/save-response/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                alert(result.message);
+                this.reset();
+            } else {
+                alert('Xatolik: ' + result.message);
+            }
+        } catch (error) {
+            alert('Xatolik yuz berdi: ' + error);
+        }
+    });
+</script>
+{% endblock %}

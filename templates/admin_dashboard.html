@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="admin-panel">
+    <div class="admin-header">
+        <h2>Taklifnoma Javoblari</h2>
+        <div>
+            <a href="/admin/" class="btn-admin">
+                <i class="fas fa-cog"></i> Django Admin
+            </a>
+            <button class="btn-admin" onclick="refreshStats()">
+                <i class="fas fa-sync-alt"></i> Yangilash
+            </button>
+            <button class="btn-admin download" onclick="exportData()">
+                <i class="fas fa-download"></i> Yuklab olish
+            </button>
+        </div>
+    </div>
+
+    <div class="stats" id="statsContainer">
+        <div class="stat-card">
+            <div class="stat-value">{{ total_responses }}</div>
+            <div class="stat-label">Jami javoblar</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ attending }}</div>
+            <div class="stat-label">Keladiganlar</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ not_attending }}</div>
+            <div class="stat-label">Kelmaydiganlar</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ total_guests }}</div>
+            <div class="stat-label">Jami mehmonlar</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="responses-table">
+            <thead>
+                <tr>
+                    <th>Ism Familiya</th>
+                    <th>Telefon</th>
+                    <th>Mehmonlar soni</th>
+                    <th>Ishtirok</th>
+                    <th>Xabar</th>
+                    <th>Vaqt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for response in responses %}
+                <tr>
+                    <td>{{ response.name }}</td>
+                    <td>{{ response.phone|default:"-" }}</td>
+                    <td>{{ response.guests_count }} kishi</td>
+                    <td>
+                        {% if response.attendance == 'yes' %}
+                            <span style="color: green;">✅ Keladi</span>
+                        {% else %}
+                            <span style="color: red;">❌ Kelmaydi</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ response.message|default:"-"|truncatewords:5 }}</td>
+                    <td>{{ response.created_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center;">Hozircha javoblar yoʻq</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .admin-panel {
+        background: #fff;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        margin: 40px auto;
+        max-width: 1200px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .admin-panel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .admin-header h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5em;
+        color: var(--primary);
+        margin: 0;
+    }
+
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: var(--light);
+        padding: 25px 20px;
+        border-radius: 15px;
+        text-align: center;
+        border-left: 5px solid var(--secondary);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .stat-value {
+        font-size: 2.8em;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 8px;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 1.1em;
+        color: var(--dark);
+        font-weight: 600;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .responses-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+    }
+
+    .responses-table th {
+        background: linear-gradient(135deg, var(--primary), var(--dark));
+        color: white;
+        font-weight: 600;
+        padding: 16px 20px;
+        text-align: left;
+        font-size: 1.1em;
+    }
+
+    .responses-table td {
+        padding: 14px 20px;
+        border-bottom: 1px solid #f0f0f0;
+        color: var(--dark);
+    }
+
+    .responses-table tr:hover {
+        background: #f9f9f9;
+    }
+
+    .responses-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .btn-admin {
+        padding: 12px 25px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: .3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-admin:hover {
+        background: var(--dark);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-admin.download {
+        background: var(--secondary);
+        color: #000;
+    }
+
+    .btn-admin.download:hover {
+        background: #e6c035;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .admin-panel {
+            padding: 25px 20px;
+            margin: 20px;
+        }
+
+        .admin-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .admin-header h2 {
+            font-size: 2em;
+        }
+
+        .stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-value {
+            font-size: 2.2em;
+        }
+
+        .responses-table {
+            font-size: 0.9em;
+        }
+
+        .responses-table th,
+        .responses-table td {
+            padding: 12px 15px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .admin-panel {
+            padding: 20px 15px;
+            margin: 15px 10px;
+        }
+
+        .stats {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-header h2 {
+            font-size: 1.8em;
+        }
+
+        .btn-admin {
+            padding: 10px 20px;
+            font-size: 0.9em;
+        }
+
+        .responses-table {
+            font-size: 0.85em;
+        }
+
+        .responses-table th,
+        .responses-table td {
+            padding: 10px 12px;
+        }
+    }
+</style>
+
+<script>
+    async function refreshStats() {
+        try {
+            const response = await fetch('/stats/');
+            const stats = await response.json();
+
+            document.querySelector('#statsContainer .stat-card:nth-child(1) .stat-value').textContent = stats.total;
+            document.querySelector('#statsContainer .stat-card:nth-child(2) .stat-value').textContent = stats.attending;
+            document.querySelector('#statsContainer .stat-card:nth-child(3) .stat-value').textContent = stats.not_attending;
+            document.querySelector('#statsContainer .stat-card:nth-child(4) .stat-value').textContent = stats.total_guests;
+
+            location.reload();
+        } catch (error) {
+            console.error('Error refreshing stats:', error);
+            alert('Statistikani yangilashda xatolik yuz berdi');
+        }
+    }
+
+    function exportData() {
+        // Simple CSV export
+        let csvContent = "Ism Familiya,Telefon,Mehmonlar soni,Ishtirok,Xabar,Vaqt\n";
+
+        {% for response in responses %}
+        csvContent += `"{{ response.name }}","{{ response.phone|default:"" }}",{{ response.guests_count }},"{{ response.get_attendance_display }}","{{ response.message|default:"" }}","{{ response.created_at|date:"d.m.Y H:i" }}"\n`;
+        {% endfor %}
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'wedding_responses_{{ now|date:"Y-m-d" }}.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Auto-refresh stats every 30 seconds
+    setInterval(refreshStats, 30000);
+</script>
+{% endblock %}
